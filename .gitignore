@@ -1,0 +1,4 @@
+*.riscv
+*.dump
+*.csv
+*.txt

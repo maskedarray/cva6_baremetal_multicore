@@ -1,0 +1,214 @@
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ONLY3.riscv
+symbol-file mohd_4cores_RD_ONLY3.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_RD3.riscv
+symbol-file mohd_4cores_RD_ON_RD3.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_WR3.riscv
+symbol-file mohd_4cores_RD_ON_WR3.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ONLY3.riscv
+symbol-file mohd_4cores_WR_ONLY3.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_WR3.riscv
+symbol-file mohd_4cores_WR_ON_WR3.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_RD3.riscv
+symbol-file mohd_4cores_WR_ON_RD3.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ONLY4.riscv
+symbol-file mohd_4cores_RD_ONLY4.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_RD4.riscv
+symbol-file mohd_4cores_RD_ON_RD4.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_WR4.riscv
+symbol-file mohd_4cores_RD_ON_WR4.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ONLY4.riscv
+symbol-file mohd_4cores_WR_ONLY4.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_WR4.riscv
+symbol-file mohd_4cores_WR_ON_WR4.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_RD4.riscv
+symbol-file mohd_4cores_WR_ON_RD4.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ONLY5.riscv
+symbol-file mohd_4cores_RD_ONLY5.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_RD5.riscv
+symbol-file mohd_4cores_RD_ON_RD5.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_WR5.riscv
+symbol-file mohd_4cores_RD_ON_WR5.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ONLY5.riscv
+symbol-file mohd_4cores_WR_ONLY5.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_WR5.riscv
+symbol-file mohd_4cores_WR_ON_WR5.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_RD5.riscv
+symbol-file mohd_4cores_WR_ON_RD5.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000

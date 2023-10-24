@@ -1,0 +1,217 @@
+set pagination off
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ONLY0.riscv
+symbol-file mohd_4cores_RD_ONLY0.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+break end_test
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_RD0.riscv
+symbol-file mohd_4cores_RD_ON_RD0.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_WR0.riscv
+symbol-file mohd_4cores_RD_ON_WR0.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ONLY0.riscv
+symbol-file mohd_4cores_WR_ONLY0.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_WR0.riscv
+symbol-file mohd_4cores_WR_ON_WR0.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_RD0.riscv
+symbol-file mohd_4cores_WR_ON_RD0.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ONLY1.riscv
+symbol-file mohd_4cores_RD_ONLY1.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_RD1.riscv
+symbol-file mohd_4cores_RD_ON_RD1.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_WR1.riscv
+symbol-file mohd_4cores_RD_ON_WR1.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ONLY1.riscv
+symbol-file mohd_4cores_WR_ONLY1.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_WR1.riscv
+symbol-file mohd_4cores_WR_ON_WR1.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_RD1.riscv
+symbol-file mohd_4cores_WR_ON_RD1.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ONLY2.riscv
+symbol-file mohd_4cores_RD_ONLY2.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_RD2.riscv
+symbol-file mohd_4cores_RD_ON_RD2.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_RD_ON_WR2.riscv
+symbol-file mohd_4cores_RD_ON_WR2.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ONLY2.riscv
+symbol-file mohd_4cores_WR_ONLY2.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_WR2.riscv
+symbol-file mohd_4cores_WR_ON_WR2.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c
+
+monitor reset halt 
+thread 1 
+load mohd_4cores_WR_ON_RD2.riscv
+symbol-file mohd_4cores_WR_ON_RD2.riscv
+thread 2
+set $pc = 0x0000000080000000
+thread 3
+set $pc = 0x0000000080000000
+thread 4
+set $pc = 0x0000000080000000
+c

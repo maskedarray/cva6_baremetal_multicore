@@ -1,0 +1,118 @@
+set pagination off
+monitor reset halt
+thread 1
+load mohd_4cores_RD_ONLY.riscv
+symbol-file mohd_4cores_RD_ONLY.riscv
+
+thread 2
+set $pc = 0x0000000080000000
+
+thread 3
+set $pc = 0x0000000080000000
+
+thread 4
+set $pc = 0x0000000080000000
+
+break end_test
+
+c
+
+
+
+monitor reset halt
+thread 1
+load mohd_4cores_WR_ONLY.riscv
+symbol-file mohd_4cores_WR_ONLY.riscv
+
+thread 2
+set $pc = 0x0000000080000000
+
+thread 3
+set $pc = 0x0000000080000000
+
+thread 4
+set $pc = 0x0000000080000000
+
+
+
+c
+
+
+monitor reset halt
+thread 1
+load mohd_4cores_RD_ON_RD.riscv
+symbol-file mohd_4cores_RD_ON_RD.riscv
+
+thread 2
+set $pc = 0x0000000080000000
+
+thread 3
+set $pc = 0x0000000080000000
+
+thread 4
+set $pc = 0x0000000080000000
+
+
+
+c
+
+
+
+monitor reset halt
+thread 1
+load mohd_4cores_WR_ON_WR.riscv
+symbol-file mohd_4cores_WR_ON_WR.riscv
+
+thread 2
+set $pc = 0x0000000080000000
+
+thread 3
+set $pc = 0x0000000080000000
+
+thread 4
+set $pc = 0x0000000080000000
+
+
+
+c
+
+
+
+monitor reset halt
+thread 1
+load mohd_4cores_RD_ON_WR.riscv
+symbol-file mohd_4cores_RD_ON_WR.riscv
+
+thread 2
+set $pc = 0x0000000080000000
+
+thread 3
+set $pc = 0x0000000080000000
+
+thread 4
+set $pc = 0x0000000080000000
+
+
+
+c
+
+
+
+
+monitor reset halt
+thread 1
+load mohd_4cores_WR_ON_RD.riscv
+symbol-file mohd_4cores_WR_ON_RD.riscv
+
+thread 2
+set $pc = 0x0000000080000000
+
+thread 3
+set $pc = 0x0000000080000000
+
+thread 4
+set $pc = 0x0000000080000000
+
+
+
+c
