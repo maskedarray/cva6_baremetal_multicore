@@ -14,8 +14,8 @@
 #ifndef TESTS_AUTO
 #define JUMP_CUA     8    // multiply by 8 for bytes
 #define JUMP_NONCUA  8    // multiply by 8 for bytes
-// #define LEN_NONCUA   32768
-#define LEN_NONCUA   524288
+// #define LEN_NONCUA   32768 //256KB
+#define LEN_NONCUA   524288   //4MB
 #define START_NONCUA 0
 #endif
 
@@ -117,16 +117,13 @@ int main(int argc, char const *argv[]) {
       printf("Write on read contention, Jump=%d Len=%d,\n", JUMP_CUA, LEN_NONCUA);
     #endif
 
-//     uint32_t program[] = {0x33,
-//                           0x400093,
-// 0x137,
-// 0x20010113,
-// 0x200213,
-// 0x412023,
-// // 0x120213,
-// // 0x128293,
-// // 0x33,
-// 0xfe000ee3};
+    // uint32_t program[] = {0x33,
+    //                       0x137,
+    //                       0x20010113, 
+    //                       0x200213,
+    //                       0x412023,
+    //                       0x33,
+    //                       0xfe000ee3};
 
     // uint32_t program_size = sizeof(program) / sizeof(program[0]);
 
@@ -147,7 +144,7 @@ int main(int argc, char const *argv[]) {
     write_32b(0x58 + 0x10401000, 0xFF00FFFF);
     write_32b(0x5c + 0x10401000, 0x00FFFFFF);
     //                           // LLC IN  // LLC OUT
-    uint32_t event_sel[]    = {0x1F4F3F, 0x1F4F3F, 0x1F4F3F};
+    uint32_t event_sel[]    = {0x1F4F3F, 0x2F4F3F, 0x2F5F3F};
     write_32b_regs(EVENT_SEL_BASE_ADDR, 3, event_sel, COUNTER_BUNDLE_SIZE);
     uint32_t event_info[]    = {0x8001E0,0x8001E0,0x8001E0};
     write_32b_regs(EVENT_INFO_BASE_ADDR, 3, event_info, COUNTER_BUNDLE_SIZE);
@@ -186,8 +183,7 @@ int main(int argc, char const *argv[]) {
         #elif defined(INTF_WR)
           asm volatile (
             "sd   %1, 0(%0)\n"  // read addr_var data into read_var
-            : "=r"(readvar2)
-            : "r"(array2 - a_idx)
+            :: "r"(array2 - a_idx), "r"(readvar2)
           );
         #endif
       } 
@@ -281,7 +277,7 @@ void test_cache() {
     // L1-D cache misses.
     // volatile uint64_t l1d_miss = end_miss - curr_miss;
     volatile uint64_t l1d_miss = (counter_final[2]-counter_init[2]);
-    printf("%d,", l1d_miss/*/((a_len2*8)/(JUMP_CUA*8))*/);
+    printf("%d,", (uint64_t)(((float)l1d_miss)/((float)end_cycle/250000.0))/*/((a_len2*8)/(JUMP_CUA*8))*/);
 
 
 
