@@ -2,3 +2,4 @@
 *.dump
 *.csv
 *.txt
+cva6_baremetal_multicore.code-workspace
