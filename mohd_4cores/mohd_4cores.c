@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "utils.h"
 #include "pmu_test_func.c"
+#include "pmu_defines.h"
 
 
 // #define RD_ON_RD
@@ -14,8 +15,8 @@
 #ifndef TESTS_AUTO
 #define JUMP_CUA     8    // multiply by 8 for bytes
 #define JUMP_NONCUA  8    // multiply by 8 for bytes
-// #define LEN_NONCUA   32768 //256KB
-#define LEN_NONCUA   524288   //4MB
+#define LEN_NONCUA   32768 //256KB
+// #define LEN_NONCUA   524288   //4MB
 #define START_NONCUA 0
 #endif
 
@@ -144,13 +145,21 @@ int main(int argc, char const *argv[]) {
     write_32b(0x58 + 0x10401000, 0xFF00FFFF);
     write_32b(0x5c + 0x10401000, 0x00FFFFFF);
     //                           // LLC IN  // LLC OUT
-    uint32_t event_sel[]    = {0x1F4F3F, 0x2F4F3F, 0x2F5F3F};
+    uint32_t event_sel[]    = {MEM_RD_REQ_CORE_1 , LLC_RD_REQ_CORE_0 , MEM_RD_REQ_CORE_0};
     write_32b_regs(EVENT_SEL_BASE_ADDR, 3, event_sel, COUNTER_BUNDLE_SIZE);
-    uint32_t event_info[]    = {0x8001E0,0x8001E0,0x8001E0};
+    uint32_t event_info[]    = {0,0,0};
     write_32b_regs(EVENT_INFO_BASE_ADDR, 3, event_info, COUNTER_BUNDLE_SIZE);
 
-    test_cache ();
-    // test_cache2();
+
+      // printf("halting core %d", 2);
+      // pmu_halt_core(ISPM_BASE_ADDR, PMC_STATUS_ADDR, 2, 0);
+      
+
+    // test_cache ();
+
+    // printf("resuming core %d", 2);
+    //   pmu_resume_core(ISPM_BASE_ADDR, PMC_STATUS_ADDR, 2, 0);
+    test_cache2();
     end_test(mhartid);
     
     uart_wait_tx_done();
@@ -159,9 +168,17 @@ int main(int argc, char const *argv[]) {
   // Core 1-3
   // *******************************************************************
   } else {
-    // if (mhartid == 1) while(1){};
-    // if (mhartid == 2) while(1){};
-    // if (mhartid == 3) while(1){};
+    
+    #ifdef CORE_SWEEP1
+    if (mhartid == 1) while(1){};
+    if (mhartid == 2) while(1){};
+    #endif
+    #ifdef CORE_SWEEP2
+    if (mhartid == 1) while(1){};
+    #endif
+    #ifdef CORE_SWEEP3
+
+    #endif
 
     while (1) {
       asm volatile ("interfering_cores:");
@@ -226,11 +243,10 @@ void test_cache() {
           : "r"(array - a_idx)
         );
       #elif defined(CUA_WR)
-        asm volatile ( 
-          "sd   %0, 0(%1)\n"  // read addr_var data into read_var
-          : "=r"(readvar1)
-          : "r"(array - a_idx)
-        );
+        asm volatile (
+            "sd   %1, 0(%0)\n"  // read addr_var data into read_var
+            :: "r"(array - a_idx), "r"(readvar2)
+          );
       #endif
     }
 
@@ -248,10 +264,9 @@ void test_cache() {
             : "r"(array - a_idx)
           );
         #elif defined(CUA_WR)
-          asm volatile ( 
-            "sd   %0, 0(%1)\n"  // read addr_var data into read_var
-            : "=r"(readvar1)
-            : "r"(array - a_idx)
+          asm volatile (
+            "sd   %1, 0(%0)\n"  // read addr_var data into read_var
+            :: "r"(array - a_idx), "r"(readvar2)
           );
         #endif
       }
@@ -273,19 +288,14 @@ void test_cache() {
     volatile uint64_t ld_sd_cc = (end_cycle)/(100*(a_len2/JUMP_CUA));
     printf("%d,", ld_sd_cc);
 
-
-    // L1-D cache misses.
-    // volatile uint64_t l1d_miss = end_miss - curr_miss;
-    volatile uint64_t l1d_miss = (counter_final[2]-counter_init[2]);
+    //non cua miss percentage
+    //kilo accesses per second
+    volatile uint64_t l1d_miss = (counter_final[0]-counter_init[0]);
     printf("%d,", (uint64_t)(((float)l1d_miss)/((float)end_cycle/250000.0))/*/((a_len2*8)/(JUMP_CUA*8))*/);
 
+    printf("%d,", (counter_final[1]-counter_init[1])/(a_len2/JUMP_CUA));
 
-
-    printf("%d,", (counter_final[0]-counter_init[0])/(100*(a_len2/JUMP_CUA)));
-
-
-
-    printf("%d\n", (counter_final[1]-counter_init[1])/(100*(a_len2/JUMP_CUA)));
+    printf("%d\n", (counter_final[2]-counter_init[2])/(a_len2/JUMP_CUA));
 
   }
 }
@@ -308,64 +318,80 @@ void test_cache2() {
     a_len2 = eval_array[a_len];
 
     for (int a_idx = 0; a_idx < a_len2; a_idx+=JUMP_CUA) {
-      asm volatile ( 
-        "ld   %0, 0(%1)\n"  // read addr_var data into read_var
-        : "=r"(readvar1)
-        : "r"(array - a_idx)
-      );
-    }
-
-    curr_cycle = read_csr(cycle);
-    
-    for (int a_repeat = 0; a_repeat < 100; a_repeat++){
-      for (int a_idx = 0; a_idx < a_len2; a_idx+=JUMP_CUA) {
+      #ifdef CUA_RD
         asm volatile ( 
           "ld   %0, 0(%1)\n"  // read addr_var data into read_var
           : "=r"(readvar1)
           : "r"(array - a_idx)
         );
-      }
-    }
-    // Load-store cycle count.
-    end_cycle = read_csr(cycle) - curr_cycle;
-    volatile uint64_t ld_sd_cc = (end_cycle)/(100*(a_len2/JUMP_CUA));
-    printf("%d,", ld_sd_cc);
-
-  }
-  printf("\n");
-  my_sleep();
-  // CUA is writing
-  for(uint32_t a_len = 0; a_len < EVAL_LEN; a_len++) {  
-    uint64_t readvar1;
-    uint64_t curr_cycle;
-    uint64_t end_cycle;
-    uint64_t a_len2;
-    a_len2 = eval_array[a_len];
-
-    for (int a_idx = 0; a_idx < a_len2; a_idx+=JUMP_CUA) {
-      asm volatile ( 
-        "sd   %0, 0(%1)\n"  // read addr_var data into read_var
-        : "=r"(readvar1)
-        : "r"(array - a_idx)
-      );
+      #elif defined(CUA_WR)
+        asm volatile (
+            "sd   %1, 0(%0)\n"  // read addr_var data into read_var
+            :: "r"(array - a_idx), "r"(readvar1)
+          );
+      #endif
     }
 
+    uint32_t counter_init[2], counter_final[2];
+    // asm volatile("csrr %0, 0xb04" : "=r" (curr_miss) : );
+    read_32b_regs(COUNTER_BASE_ADDR, 2, counter_init, COUNTER_BUNDLE_SIZE);
     curr_cycle = read_csr(cycle);
     
     for (int a_repeat = 0; a_repeat < 100; a_repeat++){
       for (int a_idx = 0; a_idx < a_len2; a_idx+=JUMP_CUA) {
-        asm volatile ( 
-          "sd   %0, 0(%1)\n"  // read addr_var data into read_var
-          : "=r"(readvar1)
-          : "r"(array - a_idx)
-        );
+        #ifdef CUA_RD
+          asm volatile ( 
+            "ld   %0, 0(%1)\n"  // read addr_var data into read_var
+            : "=r"(readvar1)
+            : "r"(array - a_idx)
+          );
+        #elif defined(CUA_WR)
+          asm volatile (
+              "sd   %1, 0(%0)\n"  // read addr_var data into read_var
+              :: "r"(array - a_idx), "r"(readvar1)
+            );
+        #endif
       }
     }
     // Load-store cycle count.
     end_cycle = read_csr(cycle) - curr_cycle;
     volatile uint64_t ld_sd_cc = (end_cycle)/(100*(a_len2/JUMP_CUA));
     printf("%d,", ld_sd_cc);
+    // printf("%d,", (counter_final[1]-counter_init[1])/(a_len2/JUMP_CUA));
+
   }
   printf("\n");
+
+  // // CUA is writing
+  // for(uint32_t a_len = 0; a_len < EVAL_LEN; a_len++) {  
+  //   uint64_t readvar1;
+  //   uint64_t curr_cycle;
+  //   uint64_t end_cycle;
+  //   uint64_t a_len2;
+  //   a_len2 = eval_array[a_len];
+
+  //   for (int a_idx = 0; a_idx < a_len2; a_idx+=JUMP_CUA) {
+  //     asm volatile (
+  //           "sd   %1, 0(%0)\n"  // read addr_var data into read_var
+  //           :: "r"(array - a_idx), "r"(readvar1)
+  //         );
+  //   }
+
+  //   curr_cycle = read_csr(cycle);
+    
+  //   for (int a_repeat = 0; a_repeat < 100; a_repeat++){
+  //     for (int a_idx = 0; a_idx < a_len2; a_idx+=JUMP_CUA) {
+  //       asm volatile (
+  //           "sd   %1, 0(%0)\n"  // read addr_var data into read_var
+  //           :: "r"(array - a_idx), "r"(readvar1)
+  //         );
+  //     }
+  //   }
+  //   // Load-store cycle count.
+  //   end_cycle = read_csr(cycle) - curr_cycle;
+  //   volatile uint64_t ld_sd_cc = (end_cycle)/(100*(a_len2/JUMP_CUA));
+  //   printf("%d,", ld_sd_cc);
+  // }
+  // printf("\n");
 }
 
