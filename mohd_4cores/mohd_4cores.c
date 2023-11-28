@@ -15,8 +15,8 @@
 #ifndef TESTS_AUTO
 #define JUMP_CUA     8    // multiply by 8 for bytes
 #define JUMP_NONCUA  8    // multiply by 8 for bytes
-#define LEN_NONCUA   32768 //256KB
-// #define LEN_NONCUA   524288   //4MB
+// #define LEN_NONCUA   32768 //256KB
+#define LEN_NONCUA   524288   //4MB
 #define START_NONCUA 0
 #endif
 
@@ -145,10 +145,33 @@ int main(int argc, char const *argv[]) {
     write_32b(0x58 + 0x10401000, 0xFF00FFFF);
     write_32b(0x5c + 0x10401000, 0x00FFFFFF);
     //                           // LLC IN  // LLC OUT
-    uint32_t event_sel[]    = {MEM_RD_REQ_CORE_1 , LLC_RD_REQ_CORE_0 , MEM_RD_REQ_CORE_0};
-    write_32b_regs(EVENT_SEL_BASE_ADDR, 3, event_sel, COUNTER_BUNDLE_SIZE);
-    uint32_t event_info[]    = {0,0,0};
-    write_32b_regs(EVENT_INFO_BASE_ADDR, 3, event_info, COUNTER_BUNDLE_SIZE);
+    // uint32_t event_sel[]    = {MEM_RD_REQ_CORE_1 , LLC_RD_REQ_CORE_0 , MEM_RD_REQ_CORE_0};    // Read Request
+
+    // this is for when cua is making reads
+    uint32_t event_sel[]  = {LLC_RD_REQ_CORE_0,   // llc read request by core 0
+                             LLC_RD_RES_CORE_0,   // llc read response by core 0
+                             MEM_RD_REQ_CORE_0,   // mem read request by core 0
+                             MEM_RD_RES_CORE_0,
+                             LLC_WR_REQ_CORE_0,   // llc write request by core 0
+                             LLC_WR_RES_CORE_0,   // llc write response by core 0
+                             MEM_WR_REQ_CORE_0,   // mem write request by core 0
+                             MEM_WR_RES_CORE_0};  // mem write response by core 0
+ 
+
+ 
+    // this doesn't change
+    uint32_t event_info[] = {0x000000,
+                             ADD_RESP_LAT,
+                             0x000000,
+                             ADD_RESP_LAT,
+                             0x000000,
+                             ADD_RESP_LAT,
+                             0x000000,
+                             ADD_RESP_LAT,};
+    write_32b_regs(EVENT_SEL_BASE_ADDR, 8, event_sel, COUNTER_BUNDLE_SIZE);
+    // uint32_t event_info[]    = {0,0,0};                                                       // Read Request
+
+    write_32b_regs(EVENT_INFO_BASE_ADDR, 8, event_info, COUNTER_BUNDLE_SIZE);
 
 
       // printf("halting core %d", 2);
@@ -310,7 +333,7 @@ void test_cache2() {
   volatile uint64_t *array = (uint64_t*) 0x83000000;
 
   //CUA is reading
-  for(uint32_t a_len = 0; a_len < EVAL_LEN; a_len++) {  
+  for(uint32_t a_len = 1; a_len < EVAL_LEN; a_len++) {  
     uint64_t readvar1;
     uint64_t curr_cycle;
     uint64_t end_cycle;
@@ -332,9 +355,9 @@ void test_cache2() {
       #endif
     }
 
-    uint32_t counter_init[2], counter_final[2];
+    uint32_t counter_init[8], counter_final[8];
     // asm volatile("csrr %0, 0xb04" : "=r" (curr_miss) : );
-    read_32b_regs(COUNTER_BASE_ADDR, 2, counter_init, COUNTER_BUNDLE_SIZE);
+    read_32b_regs(COUNTER_BASE_ADDR, 8, counter_init, COUNTER_BUNDLE_SIZE);
     curr_cycle = read_csr(cycle);
     
     for (int a_repeat = 0; a_repeat < 100; a_repeat++){
@@ -354,13 +377,18 @@ void test_cache2() {
       }
     }
     // Load-store cycle count.
-    end_cycle = read_csr(cycle) - curr_cycle;
-    volatile uint64_t ld_sd_cc = (end_cycle)/(100*(a_len2/JUMP_CUA));
-    printf("%d,", ld_sd_cc);
-    // printf("%d,", (counter_final[1]-counter_init[1])/(a_len2/JUMP_CUA));
+    // end_cycle = read_csr(cycle) - curr_cycle;
+    // volatile uint64_t ld_sd_cc = (end_cycle)/(100*(a_len2/JUMP_CUA));
+    // printf("%d,", ld_sd_cc);
+    // latency counters
+    read_32b_regs(COUNTER_BASE_ADDR, 8, counter_final, COUNTER_BUNDLE_SIZE);
+    printf("%d,", (counter_final[1]-counter_init[1]) / (counter_final[0]-counter_init[0]) );
+    printf("%d,", (counter_final[3]-counter_init[3]) / (counter_final[2]-counter_init[2]) );
+    printf("%d,", (counter_final[5]-counter_init[5]) / (counter_final[4]-counter_init[4]) );
+    printf("%d\n", (counter_final[7]-counter_init[7]) / (counter_final[6]-counter_init[6]) );
 
   }
-  printf("\n");
+  
 
   // // CUA is writing
   // for(uint32_t a_len = 0; a_len < EVAL_LEN; a_len++) {  
