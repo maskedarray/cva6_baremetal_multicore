@@ -12,6 +12,8 @@
 # define REGBYTES 4
 #endif
 
+# define NB_CORES 4
+
   .section ".text.init"
   .globl _start
 _start:
@@ -116,26 +118,23 @@ _start:
   la gp, __global_pointer$
 .option pop
 
-  la  tp, _end + 63
-  and tp, tp, -64
+  la  tp, _tls_data
 
   # get core id
   csrr a0, mhartid
-  # for now, assume only 1 core
-  li a1, 4
-1:bgeu a0, a1, 1b
+  li a1, NB_CORES
 
-  # give each core 128KB of stack + TLS
-#define STKSHIFT 17
+  #each core has 8KB of stack + TLS
+#define STKSHIFT 12
   sll a2, a0, STKSHIFT
   add tp, tp, a2
-  add sp, a0, 1
-  sll sp, sp, STKSHIFT
-  add sp, sp, tp
+  la  sp, _stack
+  add sp, sp, a2
 
   j _init
 
   .align 2
+
 trap_entry:
   addi sp, sp, -272
 
@@ -216,11 +215,11 @@ trap_entry:
   addi sp, sp, 272
   mret
 
-#ifdef CLUSTER_BIN  
+#ifdef CLUSTER_BIN
 .section .clusterraw
 .incbin CLUSTER_BIN_PATH
 #endif
-  
+
 .section ".tdata.begin"
 .globl _tdata_begin
 _tdata_begin:
@@ -240,4 +239,3 @@ tohost: .dword 0
 .align 6
 .globl fromhost
 fromhost: .dword 0
-

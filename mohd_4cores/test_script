@@ -1,3 +1,4 @@
+target remote:3333
 set pagination off
 monitor reset halt
 thread 1
@@ -116,3 +117,6 @@ set $pc = 0x0000000080000000
 
 
 c
+
+
+quit

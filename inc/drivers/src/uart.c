@@ -8,7 +8,6 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-// #include "uart.h"
 #include "uart.h"
 
 /**
@@ -40,11 +39,10 @@ void uart_send(const char* str, unsigned int len) {
     // process this in batches of 16 bytes to actually use the FIFO in the UART
 
     // wait until there is space in the fifo
-    
+    while( (*(volatile unsigned int*)(UART_REG_LSR) & 0x20) == 0);
 
     for(i = 0; (i < UART_FIFO_DEPTH) && (len > 0); i++) {
       // load FIFO
-      while( (*(volatile unsigned int*)(UART_REG_LSR) & 0x20) == 0);
       *(volatile unsigned int*)(UART_REG_THR) = *str++;
 
       len--;
@@ -68,6 +66,5 @@ void uart_sendchar(const char c) {
 
 void uart_wait_tx_done(void) {
   // wait until there is space in the fifo
-  // while( (*(volatile unsigned int*)(UART_REG_LSR) & 0x40) == 0);
   while( (*(volatile unsigned int*)(UART_REG_LSR) & 0x40) == 0);
 }

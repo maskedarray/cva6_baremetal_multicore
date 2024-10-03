@@ -1,0 +1,5 @@
+monitor reset halt
+shell make rdrd4core
+load
+source set_threads
+c

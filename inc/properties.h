@@ -112,16 +112,6 @@
 #define ARCHI_CORE_HAS_1_10  1
 #endif
 
-
-/*
- * CLOCKS
- */
-
-#define ARCHI_REF_CLOCK_LOG2 15
-#define ARCHI_REF_CLOCK      (1<<ARCHI_REF_CLOCK_LOG2)
-
-
-
 /*
  * UDMA
  */
@@ -135,18 +125,22 @@
 #define ARCHI_UDMA_HAS_TRACER 1
 #define ARCHI_UDMA_HAS_FILTER 1
 
-#define ARCHI_UDMA_NB_SPIM    12
-#define ARCHI_UDMA_NB_UART    8
+#define ARCHI_UDMA_NB_SPIM    11
+#define ARCHI_UDMA_NB_QSPIM   1
+#define ARCHI_UDMA_NB_UART    3
+#define ARCHI_UDMA_NB_USART   4
 #define ARCHI_UDMA_NB_SDIO    2
-#define ARCHI_UDMA_NB_I2C     5
+#define ARCHI_UDMA_NB_I2C     6
 #define ARCHI_UDMA_NB_I2S     0
 #define ARCHI_UDMA_NB_CAM     2
 #define ARCHI_UDMA_NB_TRACER  1
 #define ARCHI_UDMA_NB_FILTER  1
 
 #define ARCHI_UDMA_UART_ID(id)            (0 + (id))
-#define ARCHI_UDMA_SPIM_ID(id)            (8 + (id))
-#define ARCHI_UDMA_I2C_ID(id)             (20 + (id))
+#define ARCHI_UDMA_USART_ID(id)           (3 + (id))
+#define ARCHI_UDMA_SPIM_ID(id)            (7 + (id))
+#define ARCHI_UDMA_QSPIM_ID(id)           (18 + (id))
+#define ARCHI_UDMA_I2C_ID(id)             (19 + (id))
 #define ARCHI_UDMA_SDIO_ID(id)            (25 + (id))
 //#define ARCHI_UDMA_I2S_ID(id)             
 #define ARCHI_UDMA_CAM_ID(id)             (27 + (id))
@@ -162,7 +156,24 @@
  * FLLS
 */
 
-#define ARCHI_NB_FLL  3
+#define ARCHI_NB_FLL                (4)
+#define CONFIG_FAST_OSC_FREQUENCY   (24576063)
+#define FLL_ADDR                    (0x1A100000)
+
+#define ARCHI_REF_CLOCK             (1 << 15) // 32kHz, 32768 // used for RTC
+#define ARCHI_FLL_REF_CLOCK         (ARCHI_REF_CLOCK) // 24MHz
+#define ARCHI_FAST_REF_CLOCK_INIT   (ARCHI_REF_CLOCK / 4) // 6.144MHz
+#define ARCHI_FLL_OPEN_LOOP_CLOCK   (50000000) // 50MHz, no fast clock
+
+#define FLL_ID_CVA6                 (0)
+#define FLL_ID_SOC                  (1)
+#define FLL_ID_PER                  (2)
+#define FLL_ID_CL                   (3)
+
+#define CONFIG_FREQUENCY_CVA6        (50000000)
+#define CONFIG_FREQUENCY_SOC         (50000000)
+#define CONFIG_FREQUENCY_PER         (50000000)
+#define CONFIG_FREQUENCY_CL          (50000000)
 
 
 /*

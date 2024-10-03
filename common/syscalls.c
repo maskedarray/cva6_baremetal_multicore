@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <sys/signal.h>
 #include "util.h"
+#include "utils.h"
 
 #define SYS_write 64
 
@@ -83,14 +84,14 @@ void __attribute__((weak)) thread_entry(int cid, int nc)
 {
   // multi-threaded programs override this function.
   // for the case of single-threaded programs, only let core 0 proceed.
-  //while (cid != 0);
+  while (cid != 0)
+    __asm__ volatile("wfi;");
 }
 
 int __attribute__((weak)) main(int argc, char** argv)
 {
   // single-threaded programs override this function.
-  printstr("Implement main(), foo!\n");
-  return -1;
+  return 0;
 }
 
 static void init_tls()
@@ -107,10 +108,43 @@ static void init_tls()
 void _init(int cid, int nc)
 {
   init_tls();
-  thread_entry(cid, nc);
+  if(cid==0) {
+     int * tmp;
+     /* Set UART MUX with hardcoded write */
+
+    //  tmp = (int *) 0x1a104074;
+    //  *tmp = 1;
+    //  tmp = (int *) 0x1a10407C;
+    //  *tmp = 1;
+    //  int baud_rate = 115200;
+    //  #ifndef FPGA_ETHERNET
+    //  int test_freq = 40000000;
+    //  #else
+    //  int test_freq = 50000000;
+    //  #endif
+
+    //  uart_set_cfg(0,(test_freq/baud_rate)>>4);
+
+    //  /* Set plic mbox IRQ priority to 1 */
+    //  tmp = (int *) 0xC000028;
+    //  *tmp = 0x1;
+    //  /* Disable interrupt from mbox scmi to core 0 */
+    //  tmp = (int *) 0xC002080;
+    //  *tmp = 0;
+    //  /* Disable interrupt from mbox scmi to core 1 */
+    //  tmp = (int *) 0xC002180;
+    //  *tmp = 0x400;
+    //  /* Write .text.init address in the mailbox */
+    //  tmp = (int *) 0x10404000;
+    //  *tmp = 0x80000000;
+    //  /* Send interrupt to core 1 to make it jump to text_init */
+    //  tmp = (int *) 0x10404024;
+    //  *tmp = 1;
+  }
+  // thread_entry(cid, nc);
 
   // only single-threaded programs should ever get here.
-  int ret = main(0, 0);
+  int ret = main(cid, 0);
 
   char buf[NUM_COUNTERS * 32] __attribute__((aligned(64)));
   char* pbuf = buf;
@@ -212,7 +246,7 @@ static void vprintfmt(void (*putch)(int, void**), void **putdat, const char *fmt
     case '-':
       padc = '-';
       goto reswitch;
-      
+
     // flag to pad with 0's instead of spaces
     case '0':
       padc = '0';
@@ -321,7 +355,7 @@ static void vprintfmt(void (*putch)(int, void**), void **putdat, const char *fmt
     case '%':
       putch(ch, putdat);
       break;
-      
+
     // unrecognized escape sequence - just print it literally
     default:
       putch('%', putdat);

@@ -370,7 +370,7 @@ uint32_t test_pmu_core_counter_b_writes (
   write_32b(pmc_status_base_addr, 0);
 
   while (1) {
-    uint read_target = read_32b(target_addr);
+    uint32_t read_target = read_32b(target_addr);
     if (read_target == 101)
       break;
   }

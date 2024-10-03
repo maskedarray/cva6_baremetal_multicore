@@ -9,6 +9,7 @@ endif
 
 current_dir = $(shell pwd)
 
+
 ifdef CLUSTER_BIN
 	cc-elf-y = -DCLUSTER_BIN_PATH=\"$(current_dir)/stimuli/cluster.bin\"  -DCLUSTER_BIN
 endif
@@ -19,20 +20,51 @@ endif
 
 utils_dir = ../inc/
 
-directories = . drivers/inc drivers/src string_lib/inc string_lib/src padframe/inc padframe/src fpga_padframe/inc fpga_padframe/src udma udma/cpi udma/i2c udma/spim udma/uart udma/sdio apb_timer gpio
+inc_dirs = . drivers/inc string_lib/inc padframe/inc fpga_padframe/inc udma udma/cpi udma/i2c udma/spim udma/uart udma/sdio apb_timer gpio
 
-INC=$(foreach d, $(directories), -I$(utils_dir)$d)
+src_dirs = . drivers/src string_lib/src udma/uart padframe/src fpga_padframe/src
 
+SRC+=$(foreach d, $(src_dirs), $(wildcard $(utils_dir)$d/*.c))
+
+INC+=$(foreach d, $(inc_dirs), -I$(utils_dir)$d)
+
+ifneq ($(strip $(wildcard $(HW_HOME)/ip_list/fll_behav/driver)),)
+	FLL_DRIVER=1
+	INC += -I$(HW_HOME)/ip_list/fll_behav/driver/inc
+	SRC += $(wildcard $(HW_HOME)/ip_list/fll_behav/driver/src/*.c)
+endif
 
 inc_dir := ../common/
+inc_dir_culsans := ../common_culsans/
 
 RISCV_PREFIX ?= riscv$(XLEN)-unknown-elf-
 RISCV_GCC ?= $(RISCV_PREFIX)gcc
 
-RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.text.init --section=.data
+RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump -h --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.text.init --section=.data --section=.tohost --section=.sdata --section=.rodata --section=.sbss --section=.bss --section=.tdata --section=.tbss --section=.stack -t -s
 
-RISCV_FLAGS     := -mcmodel=medany -static -std=gnu99 -DNUM_CORES=1 -O3 -ggdb -ffast-math -fno-common -fno-builtin-printf $(INC)
+RISCV_FLAGS     := -mcmodel=medany -static -std=gnu99 -DNUM_CORES=2 -Wno-int-to-pointer-cast -O2 -ggdb3 -ffast-math -fno-common -fno-builtin-printf $(INC)
 RISCV_LINK_OPTS := -static -nostdlib -nostartfiles -lm -lgcc
+
+################
+## FPGA FLAGS ##
+################
+
+# When sw is compiled with fpga=1 uart baudrate is derived from a source clock of 40MHz - This should be used when you are NOT testing peripherals
+ifdef fpga
+	RISCV_FLAGS += -DFPGA_EMULATION
+endif
+
+# When sw is compiled with fpga_ethernet=1 uart baudrate is derived from a source clock of 50MHz - This should be used when you are testing peripherals
+ifdef fpga_ethernet
+	RISCV_FLAGS += -DFPGA_EMULATION
+	RISCV_FLAGS += -DFPGA_ETHERNET
+endif
+
+
+ifdef FLL_DRIVER
+	RISCV_FLAGS += -DFLL_DRIVER
+endif
+
 
 clean:
 	rm -f *.riscv
@@ -40,7 +72,9 @@ clean:
 	rm -f *.slm
 
 build:
-	$(RISCV_GCC) $(RISCV_FLAGS) $(EXTRA_FLAGS) -T $(inc_dir)/test_1.ld $(RISCV_LINK_OPTS) $(cc-elf-y) $(inc_dir)/crt.S  $(inc_dir)/syscalls.c -L $(inc_dir) $(APP).c -o $(APP)_$(TEST_NAME).riscv
+	$(RISCV_GCC) $(RISCV_FLAGS)  $(EXTRA_FLAGS) -T $(inc_dir)/test.ld $(RISCV_LINK_OPTS) $(cc-elf-y) $(inc_dir)/crt.S $(inc_dir)/syscalls.c -L $(inc_dir) $(APP).c $(SRC) -o $(APP)_$(TEST_NAME).riscv
+
+
 
 dis:
 	$(RISCV_OBJDUMP) $(APP)_$(TEST_NAME).riscv > $(APP)_$(TEST_NAME).dump
@@ -55,12 +89,22 @@ all: clean build dis # dump
 
 testall:
 	make clean
+	make build dis TEST_NAME="RD_ONLY"  EXTRA_FLAGS="-D RD_ONLY"
+	make build dis TEST_NAME="WR_ONLY"  EXTRA_FLAGS="-D WR_ONLY"
+	make build dis TEST_NAME="RD_ON_RD" EXTRA_FLAGS="-D RD_ON_RD"
+	make build dis TEST_NAME="WR_ON_WR" EXTRA_FLAGS="-D WR_ON_WR"
+	make build dis TEST_NAME="RD_ON_WR" EXTRA_FLAGS="-D RD_ON_WR"
+	make build dis TEST_NAME="WR_ON_RD" EXTRA_FLAGS="-D WR_ON_RD"
+
+testall-sweep:
+	make clean
 	make build dis TEST_NAME="RD_ONLY"  EXTRA_FLAGS="-DCORE_SWEEP1 -DCORES_SWEEP_TEST -D RD_ONLY"
 	make build dis TEST_NAME="WR_ONLY"  EXTRA_FLAGS="-DCORE_SWEEP1 -DCORES_SWEEP_TEST -D WR_ONLY"
 	make build dis TEST_NAME="RD_ON_RD" EXTRA_FLAGS="-DCORE_SWEEP1 -DCORES_SWEEP_TEST -D RD_ON_RD"
 	make build dis TEST_NAME="WR_ON_WR" EXTRA_FLAGS="-DCORE_SWEEP1 -DCORES_SWEEP_TEST -D WR_ON_WR"
 	make build dis TEST_NAME="RD_ON_WR" EXTRA_FLAGS="-DCORE_SWEEP1 -DCORES_SWEEP_TEST -D RD_ON_WR"
 	make build dis TEST_NAME="WR_ON_RD" EXTRA_FLAGS="-DCORE_SWEEP1 -DCORES_SWEEP_TEST -D WR_ON_RD"
+
 
 testall36:
 	make clean
