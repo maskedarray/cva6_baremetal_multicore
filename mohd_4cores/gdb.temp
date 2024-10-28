@@ -1,4 +1,5 @@
 monitor reset halt
+set pagination off
 shell make rdrd4core
 load
 source set_threads
